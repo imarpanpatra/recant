@@ -311,8 +311,11 @@ collapse when only one of its two sources is retracted.
 `.env`:
 
 ```ini
-# FalkorDB Cloud connection string (falkors:// for TLS)
-FALKORDB_URL=falkors://falkordb:<password>@<host>.falkordb.io:<port>
+# Endpoint and port come from the instance's Connect dialog. Percent-encode
+# reserved characters in the password ($ -> %24, @ -> %40) or the URL parser
+# will split it in the wrong place. Free-tier instances are plain TCP; use
+# falkors:// only if yours has TLS enabled.
+FALKORDB_URL=falkor://falkordb:<password>@<endpoint>.cloud:<port>
 FALKORDB_GRAPH=recant
 GEMINI_API_KEY=<your key>
 PORT=8080
