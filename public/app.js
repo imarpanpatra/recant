@@ -96,7 +96,7 @@ function renderSources() {
            </div>
            <button class="btn sm" id="deliver"
                    style="margin-top:9px;width:100%;white-space:normal;line-height:1.35">
-             Deliver October &mdash; incident + postmortem
+             Deliver October - incident + postmortem
            </button>
          </div>`
       : '';
@@ -304,7 +304,7 @@ async function renderGraph() {
     });
     cy.on('tap', 'node', (evt) => {
       const d = evt.target.data();
-      toast(`${d.type}: ${d.full}${d.detail ? ` — ${d.detail}` : ''}`);
+      toast(`${d.type}: ${d.full}${d.detail ? ` - ${d.detail}` : ''}`);
       if (d.type === 'Claim') selectClaim(d.id);
     });
     // Hover reveals the label of a claim that is otherwise unlabelled.
@@ -373,7 +373,7 @@ function answerHtml(a) {
       </div>
       ${a.seeds?.length ? `<div class="sub"><span>anchored on: ${esc(a.seeds.join(', '))}</span></div>` : ''}
       <details class="why" open>
-        <summary>Why this answer &mdash; provenance walked back to source</summary>
+        <summary>Why this answer - provenance walked back to source</summary>
         ${whyHtml(a.why) || '<div class="empty">No provenance: the answer relied on nothing in memory.</div>'}
       </details>
     </div>`;
@@ -547,7 +547,7 @@ async function renderPanelInner() {
     const lb = await api('/api/load-bearing');
     el.innerHTML = `
       <div class="card">
-        <h4 class="sec">Load-bearing beliefs &mdash; PageRank over DERIVED_FROM</h4>
+        <h4 class="sec">Load-bearing beliefs - PageRank over DERIVED_FROM</h4>
         <div class="cascade-reason" style="margin-bottom:8px">
           The claims the most reasoning rests on. If one of these is wrong, the damage is widest.
         </div>
@@ -569,7 +569,7 @@ async function renderPanelInner() {
                   </div>`,
                 )
                 .join('')
-            : '<div class="empty">No derivation edges yet &mdash; seed the memory first.</div>'
+            : '<div class="empty">No derivation edges yet - seed the memory first.</div>'
         }
       </div>`;
     return;

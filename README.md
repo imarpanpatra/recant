@@ -1,4 +1,4 @@
-# Recant — agent memory that can take it back
+# Recant - agent memory that can take it back
 
 **Graph Hacks: Context for AI Agents** · built on **FalkorDB**
 Tracks entered: **Agent Memory and Coordination** (primary) · **Agents That Act on Connected Data**
@@ -17,7 +17,7 @@ actually matters in production:
 In a vector store, nothing. The bad fact was embedded, reasoned over, and the
 conclusions were written back as new memories with no link to where they came
 from. Deleting the source changes nothing. The agent keeps confidently asserting
-conclusions whose foundation has been removed — and keeps citing them.
+conclusions whose foundation has been removed, and keeps citing them.
 
 That is memory rot, and it is a graph problem.
 
@@ -31,7 +31,7 @@ from. So retraction becomes a traversal:
 2. Every claim that *only* that source asserted loses its footing.
 3. Every inference standing on those claims collapses, transitively, hop by hop.
 4. Every past answer that relied on any collapsed claim is marked **stale**.
-5. Ask the same question again and the answer is different — and it can show you
+5. Ask the same question again and the answer is different - and it can show you
    exactly which chain of reasoning disappeared.
 
 Claims corroborated by a surviving source **do not** collapse. That distinction
@@ -40,7 +40,7 @@ is the whole point, and it is only expressible as a graph.
 ### The demo
 
 The corpus is a fictional company, Northwind Commerce, and it is **a timeline**.
-Seeding loads only the seven September documents — the state the team was in
+Seeding loads only the seven September documents - the state the team was in
 before anything went wrong. There is one deliberate trap in them: a load test
 whose numbers are invalid, and four downstream documents that quietly build on
 it. October's incident and postmortem arrive later, as they would in real life.
@@ -51,10 +51,10 @@ in the UI.
 | | |
 |---|---|
 | **1. Ask** | *"Are we ready for Black Friday on the current Checkout API setup?"* → **YES**, with a provenance chain back to the September load test's 1,200 rps ceiling. The agent is not being stupid: that genuinely is what September's documents say. |
-| **2. Diagnose** | PageRank over `DERIVED_FROM` ranks the load-bearing beliefs — the ones the most reasoning rests on, and so the ones you would least like to be wrong. |
+| **2. Diagnose** | PageRank over `DERIVED_FROM` ranks the load-bearing beliefs - the ones the most reasoning rests on, and so the ones you would least like to be wrong. |
 | **3. October arrives** | Deliver the incident and the postmortem. On ingest the graph detects the conflict: the postmortem's *"the 1,200 rps figure does not transfer to production"* contradicts the belief the whole plan stands on. |
-| **4. Retract** | Withdraw that belief. Note what the blast radius says first: **two** documents assert it — the load test *and* the capacity plan that copied it. Retracting either document alone would leave the belief standing, which is exactly why claim-level retraction exists. Withdrawing it collapses 7 claims across 4 hops: the capacity figure, then "can absorb the peak", then "no additional capacity required", then the spend decision, then the $18k saving and the single-engineer on-call rota. The earlier answer is marked **stale**. |
-| **5. Ask again** | Same question → **NO**, now citing the postmortem's corrected 520 rps ceiling. Meanwhile *"Checkout API runs on 3 nodes"* survives untouched — the independent platform audit also asserted it, so it never lost its footing. |
+| **4. Retract** | Withdraw that belief. Note what the blast radius says first: **two** documents assert it - the load test *and* the capacity plan that copied it. Retracting either document alone would leave the belief standing, which is exactly why claim-level retraction exists. Withdrawing it collapses 7 claims across 4 hops: the capacity figure, then "can absorb the peak", then "no additional capacity required", then the spend decision, then the $18k saving and the single-engineer on-call rota. The earlier answer is marked **stale**. |
+| **5. Ask again** | Same question → **NO**, now citing the postmortem's corrected 520 rps ceiling. Meanwhile *"Checkout API runs on 3 nodes"* survives untouched - the independent platform audit also asserted it, so it never lost its footing. |
 
 The headline number: **YES → NO**, with 7 beliefs collapsed and 1 past answer
 invalidated, from a single operator action.
@@ -69,7 +69,7 @@ with no key-value or vector equivalent:
 | **Retraction cascade** | Transitive forward reachability over `DERIVED_FROM`, run to a fixpoint. The answer depends on edges, not on any claim's content. |
 | **Corroboration survival** | Compare the count of *all* `STATES` edges into a claim against the count of retracted ones. A claim dies only when every source that asserted it is gone. |
 | **"Why this answer"** | Variable-length path query from each claim the agent used, back to the documents that originally asserted it. |
-| **Blast radius (read-only)** | One `*1..8` traversal of the downstream inference cone, before any mutation — a what-if on graph structure. |
+| **Blast radius (read-only)** | One `*1..8` traversal of the downstream inference cone, before any mutation - a what-if on graph structure. |
 | **Retrieval** | Seeds on entity nodes, then walks `DERIVED_FROM` up to 3 hops to pull in the reasoning each claim rests on, excluding collapsed claims at every hop. Similarity search cannot express "and everything this rests on." |
 | **Load-bearing beliefs** | `algo.pageRank` over `DERIVED_FROM`. Edges point from conclusion to foundation, so incoming weight accumulates on the claims most reasoning depends on. |
 | **Claim-level retraction** | Withdrawing a belief that several documents assert, and having the cascade compose correctly with source-level retractions, is a property of the edges into that node. |
@@ -82,7 +82,7 @@ missing one, so two deterministic guards sit between it and the graph:
 - **Restatement is not inference.** Before any `DERIVED_FROM` edge is written,
   the child and parent texts are compared. If they are substantially the same
   assertion, the edge is rejected. Without this, a second document repeating
-  "Checkout API runs on 3 nodes" gets linked as *derived from* the first — and
+  "Checkout API runs on 3 nodes" gets linked as *derived from* the first - and
   a retraction would then cascade through a fact an independent audit still
   vouches for, destroying the corroboration guarantee.
 - **Restatement is not conflict either.** The same check runs on proposed
@@ -91,11 +91,11 @@ missing one, so two deterministic guards sit between it and the graph:
   drops it regardless of what the model says.
 
 Likewise, the ids a model claims it relied on are intersected with the ids it
-was actually given, and anything invented is discarded — those edges decide
+was actually given, and anything invented is discarded, because those edges decide
 whether an answer later goes stale, so a false citation is not acceptable.
 
 The LLM never searches. FalkorDB selects the subgraph; Gemini only does
-structured extraction on the way in and synthesis on the way out — and it is
+structured extraction on the way in and synthesis on the way out - and it is
 never shown a claim the graph has marked collapsed. **The graph, not the prompt,
 is what forgets.**
 
@@ -202,7 +202,7 @@ SET a.stale = true,
 RETURN count(a) AS n
 ```
 
-**4. Blast radius — read-only what-if, one traversal.**
+**4. Blast radius - read-only what-if, one traversal.**
 
 ```cypher
 MATCH (s:Source {id: $sourceId})-[:STATES]->(root:Claim)
@@ -216,7 +216,7 @@ RETURN s.title AS title, size(roots) AS directClaims, size(derived) AS derivedCl
        [x IN roots | x.text] AS rootTexts, [x IN derived | x.text] AS derivedTexts
 ```
 
-**5. Retrieval — entity-seeded, multi-hop, collapse-aware.**
+**5. Retrieval - entity-seeded, multi-hop, collapse-aware.**
 
 ```cypher
 UNWIND $seeds AS seed
@@ -240,7 +240,7 @@ RETURN c.id AS id, c.text AS text, c.kind AS kind, c.confidence AS confidence, c
 LIMIT 60
 ```
 
-**6. "Why this answer" — provenance paths back to documents.**
+**6. "Why this answer" - provenance paths back to documents.**
 
 ```cypher
 UNWIND $claimIds AS cid
@@ -257,7 +257,7 @@ ORDER BY hops ASC
 LIMIT 120
 ```
 
-**7. Graph algorithm as an agent tool — load-bearing beliefs.**
+**7. Graph algorithm as an agent tool - load-bearing beliefs.**
 
 ```cypher
 CALL algo.pageRank('Claim', 'DERIVED_FROM') YIELD node, score
@@ -280,7 +280,7 @@ LIMIT 8
 
 - Node.js 20 or newer
 - A FalkorDB instance ([FalkorDB Cloud](https://app.falkordb.cloud) free tier, or Docker)
-- A Gemini API key ([Google AI Studio](https://aistudio.google.com/apikey)) — optional; without one the app runs in a graph-only fallback mode
+- A Gemini API key ([Google AI Studio](https://aistudio.google.com/apikey)) - optional; without one the app runs in a graph-only fallback mode
 
 ### Setup
 
@@ -305,7 +305,7 @@ npm start                # http://localhost:8080
 `npm run verify` is the one to run first if you want to check the semantics
 rather than the pitch. It builds its own fixture graph through the same queries
 the app uses, with no LLM involved, and asserts the behaviour in both
-directions — that a cascade fires, *and* that a corroborated claim does not
+directions - that a cascade fires, *and* that a corroborated claim does not
 collapse when only one of its two sources is retracted.
 
 `.env`:
@@ -342,7 +342,7 @@ before retracting it.
 |---|---|---|
 | `GET` | `/api/health` | FalkorDB reachability and which Gemini model is live |
 | `GET` | `/api/stats` | claim / source / answer counts, including collapsed and stale |
-| `POST` | `/api/seed` | ingest the corpus by phase — `{phase:1}` September (wipes), `{phase:2}` deliver October, `{phase:0}` everything (async; poll `/api/seed/status`) |
+| `POST` | `/api/seed` | ingest the corpus by phase - `{phase:1}` September (wipes), `{phase:2}` deliver October, `{phase:0}` everything (async; poll `/api/seed/status`) |
 | `POST` | `/api/ingest` | ingest one `{title, text, kind}` document of your own |
 | `POST` | `/api/ask` | `{question}` → answer, verdict, provenance chains, retrieval trace |
 | `GET` | `/api/answers` | recorded answers, with staleness |
@@ -361,8 +361,8 @@ before retracting it.
 ## How the pipeline works
 
 **Ingest.** Each document becomes a `:Source`. Gemini extracts up to six
-self-contained claims, each with its kind, confidence, entities, and — crucially
-— which other claims it was *derived from*. The extraction prompt is given the
+self-contained claims, each with its kind, confidence, entities, and, crucially, which other claims
+it was *derived from*. The extraction prompt is given the
 claims already in the graph, so a document can declare that its conclusion rests
 on a fact established by an earlier document. That is what builds chains across
 document boundaries. Claims are then `MERGE`d on their content hash, entity
@@ -374,14 +374,14 @@ matched on the indexed key, plus token overlap against entity names). From those
 seeds, `RETRIEVE_CONTEXT` walks the graph and returns only claims that still
 stand. Gemini synthesises an answer and must declare which claim ids it relied
 on; ids it invents are discarded. Those surviving ids become `BASED_ON` edges
-from a new `:Answer` node — so the answer's provenance is itself in the graph
+from a new `:Answer` node - so the answer's provenance is itself in the graph
 and can be invalidated later. `WHY_PATHS` then produces the explanation.
 
 **Retract.** Setting `retracted` on a source *or* on a single claim triggers the
 same fixpoint: clear taint, mark the two kinds of root (beliefs withdrawn
 directly, and claims whose every stating source is now retracted), propagate one
 hop at a time until nothing changes, then recompute answer staleness. Because
-both kinds of withdrawal funnel through one recomputation, they compose — you
+both kinds of withdrawal funnel through one recomputation, they compose - you
 can retract a document and a claim it shares with another document, and the
 cascade accounts for both at once. Recomputing from scratch each time also makes
 the operation idempotent and makes **restore** fall out for free: un-retract
