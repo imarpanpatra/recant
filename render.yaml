@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: recant
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: FALKORDB_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FALKORDB_GRAPH
+        value: recant
+      - key: NODE_VERSION
+        value: "22"

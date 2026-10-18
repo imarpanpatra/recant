@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recant</title>
+<meta name="description" content="Agent memory that can take it back - provenance-first memory on FalkorDB.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#9732;</text></svg>">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>Recant</h1>
+      <span class="tag">agent memory that can take it back &middot; FalkorDB</span>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <main>
+    <!-- sources -->
+    <section class="col">
+      <div class="col-head">
+        Sources
+        <button class="btn ghost sm" id="seed" style="margin-left:auto">Reseed September</button>
+      </div>
+      <div class="col-body" id="sources">
+        <div class="empty">Loading&hellip;</div>
+      </div>
+    </section>
+
+    <!-- graph -->
+    <section class="col">
+      <div class="col-head">
+        Memory graph
+        <span id="graph-note" style="margin-left:auto;text-transform:none;letter-spacing:0"></span>
+      </div>
+      <div id="graph"></div>
+      <div class="legend">
+        <span><i style="background:#8b93a7"></i>Source</span>
+        <span><i style="background:#5eead4"></i>Claim</span>
+        <span><i style="background:#f87171"></i>Retracted / tainted</span>
+        <span><i style="background:#a78bfa"></i>Entity</span>
+        <span><i style="background:#60a5fa"></i>Answer</span>
+      </div>
+    </section>
+
+    <!-- agent -->
+    <section class="col">
+      <div class="col-head">
+        Agent
+        <div class="tabs">
+          <button class="tab on" data-tab="ask">Ask</button>
+          <button class="tab" data-tab="memory">Memory</button>
+          <button class="tab" data-tab="risk">Risk</button>
+        </div>
+      </div>
+
+      <div class="askbox" id="askbox">
+        <div class="askrow">
+          <input id="question" placeholder="Ask the memory something&hellip;"
+                 value="Are we ready for Black Friday on the current Checkout API setup?">
+          <button class="btn" id="ask">Ask</button>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+
+      <div class="col-body" id="panel">
+        <div class="empty">Seed the memory, then ask a question.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
