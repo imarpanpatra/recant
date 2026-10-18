@@ -599,6 +599,7 @@ async function doAsk() {
   state.tab = 'ask';
   state.cascade = null;
   state.selected = null;
+  state.selectedClaim = null;
   $('panel').innerHTML = '<div class="empty"><span class="spin"></span>Traversing memory&hellip;</div>';
   try {
     state.answer = await api('/api/ask', { method: 'POST', body: { question } });
@@ -617,12 +618,14 @@ async function doRetract(retracted) {
   const sourceId = state.selected;
   if ((!claimId && !sourceId) || state.busy) return;
   state.busy = true;
-  const reason =
-    retracted && sourceId === state.demo?.trigger
+  // The reason is stored on the node and shown as the cascade's "direct" line,
+  // so it is worth being specific. Once October has landed, a withdrawn belief
+  // is being withdrawn because of the postmortem.
+  const reason = !retracted
+    ? ''
+    : claimId && state.demo?.octoberDelivered
       ? state.demo.reason
-      : retracted
-        ? 'retracted by operator'
-        : '';
+      : 'retracted by operator';
   $('panel').innerHTML = `<div class="empty"><span class="spin"></span>${
     retracted ? 'Propagating retraction through the graph' : 'Restoring'
   }&hellip;</div>`;
@@ -649,7 +652,12 @@ async function doRetract(retracted) {
   }
 }
 
-async function doSeed(phase = 1) {
+async function doSeed(phaseArg = 1) {
+  // Guard against being wired straight to an onclick handler, which would
+  // pass a MouseEvent here. That used to make "Reseed September" send
+  // wipe:false, so it quietly re-ingested on top of the existing graph
+  // instead of resetting it.
+  const phase = Number(phaseArg) === 2 ? 2 : 1;
   if (state.busy) return;
   state.busy = true;
   $('seed').disabled = true;
@@ -684,7 +692,7 @@ async function doSeed(phase = 1) {
 function wire() {
   $('ask').onclick = doAsk;
   $('question').onkeydown = (e) => { if (e.key === 'Enter') doAsk(); };
-  $('seed').onclick = doSeed;
+  $('seed').onclick = () => doSeed(1);
 
   $('chips').innerHTML = PRESETS.map(
     (p, i) => `<button class="chip" data-i="${i}">${esc(clip(p, 42))}</button>`,
@@ -701,6 +709,7 @@ function wire() {
       document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === t));
       state.tab = t.dataset.tab;
       state.selected = null;
+      state.selectedClaim = null;
       renderSources();
       renderPanel();
     };

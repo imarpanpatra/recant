@@ -65,7 +65,16 @@ async function connect() {
 }
 
 export function graph() {
-  if (!ready) ready = connect();
+  // A failed connection must not be memoised. Caching the rejected promise
+  // would make one transient blip at startup permanent for the life of the
+  // process: every later request would be handed the same old failure, even
+  // after the database came back.
+  if (!ready) {
+    ready = connect().catch((err) => {
+      ready = null;
+      throw err;
+    });
+  }
   return ready;
 }
 

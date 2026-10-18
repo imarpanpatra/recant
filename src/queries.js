@@ -274,9 +274,12 @@ RETURN s.id AS id, s.title AS title, coalesce(s.retracted, false) AS retracted`;
  * cone of inference, up to 8 hops.
  */
 export const BLAST_RADIUS = `
-MATCH (s:Source {id: $sourceId})-[:STATES]->(root:Claim)
-OPTIONAL MATCH (d:Claim)-[:DERIVED_FROM*1..8]->(root)
-WITH s, collect(DISTINCT root) AS roots, [x IN collect(DISTINCT d) WHERE x IS NOT NULL] AS derived
+MATCH (s:Source {id: $sourceId})
+OPTIONAL MATCH (s)-[:STATES]->(root:Claim)
+WITH s, [x IN collect(DISTINCT root) WHERE x IS NOT NULL] AS roots
+OPTIONAL MATCH (d:Claim)-[:DERIVED_FROM*1..8]->(anc:Claim)
+WHERE anc IN roots
+WITH s, roots, [x IN collect(DISTINCT d) WHERE x IS NOT NULL AND NOT x IN roots] AS derived
 OPTIONAL MATCH (a:Answer)-[:BASED_ON]->(ac:Claim)
 WHERE ac IN roots OR ac IN derived
 RETURN s.title AS title,

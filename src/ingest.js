@@ -186,12 +186,14 @@ async function detectContradictions(newClaims) {
       console.log('[ingest] rejected a "contradiction" between two restatements of one fact');
       continue;
     }
-    await q('ingest.linkContradicts', Q.LINK_CONTRADICTS, {
+    // LINK_CONTRADICTS matches both claims, so a model-invented id writes no
+    // edge. Count what the graph actually gained, not what was proposed.
+    const rows = await q('ingest.linkContradicts', Q.LINK_CONTRADICTS, {
       aId: pair.a,
       bId: pair.b,
       note: String(pair.note || '').slice(0, 300),
     });
-    linked += 1;
+    if (rows.length) linked += 1;
   }
   return linked;
 }
