@@ -3,6 +3,11 @@
 **Graph Hacks: Context for AI Agents** · built on **FalkorDB**
 Tracks entered: **Agent Memory and Coordination** (primary) · **Agents That Act on Connected Data**
 
+**[Live demo](https://recant.onrender.com)** · **[Demo video](https://youtu.be/0MGY-S4MVZI)**
+
+The live demo starts in its September state, so you can walk the whole thing
+yourself: ask the question, deliver October, retract the belief, ask again.
+
 ---
 
 ## The problem
