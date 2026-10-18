@@ -8,6 +8,13 @@ Tracks entered: **Agent Memory and Coordination** (primary) · **Agents That Act
 The live demo starts in its September state, so you can walk the whole thing
 yourself: ask the question, deliver October, retract the belief, ask again.
 
+![Recant answering a question, with every claim traced back to the document that asserted it](assets/home.png)
+
+*The agent says yes, and the panel on the right walks each claim it used back to
+the document that stated it. That chain is what makes retraction possible: when
+one of those documents turns out to be wrong, the graph knows exactly what else
+has to go.*
+
 ---
 
 ## The problem
