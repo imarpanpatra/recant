@@ -94,7 +94,8 @@ function renderSources() {
              The agent only knows what the team knew before the flash sale.
              Deliver October's documents and watch what the graph does with them.
            </div>
-           <button class="btn sm" id="deliver" style="margin-top:9px;width:100%">
+           <button class="btn sm" id="deliver"
+                   style="margin-top:9px;width:100%;white-space:normal;line-height:1.35">
              Deliver October &mdash; incident + postmortem
            </button>
          </div>`
@@ -156,12 +157,28 @@ async function selectClaim(claimId) {
 
 let cy = null;
 
+const LAYOUT = {
+  name: 'cose',
+  animate: false,
+  nodeRepulsion: 42000,
+  idealEdgeLength: 90,
+  nodeOverlap: 28,
+  componentSpacing: 120,
+  padding: 30,
+  nestingFactor: 1.1,
+  gravity: 0.6,
+};
+
 const CY_STYLE = [
   {
     selector: 'node',
     style: {
       'background-color': '#8b93a7',
-      label: 'data(short)',
+      // Claim labels are hidden by default: with ~30 claims the text collides
+      // into an unreadable mass. Documents and entities stay labelled as
+      // landmarks, and a claim shows its text when it matters - when it is
+      // part of an answer, when it collapses, or on hover.
+      label: '',
       color: '#8b93a7',
       'font-size': 8,
       'text-valign': 'center',
@@ -174,15 +191,36 @@ const CY_STYLE = [
       'border-width': 0,
     },
   },
-  { selector: 'node[type="Source"]', style: { 'background-color': '#8b93a7', shape: 'round-rectangle', width: 15, height: 11 } },
+  {
+    selector: 'node[type="Source"]',
+    style: {
+      'background-color': '#8b93a7', shape: 'round-rectangle', width: 15, height: 11,
+      label: 'data(short)', 'font-size': 8.5, color: '#9aa3b8',
+    },
+  },
   { selector: 'node[type="Claim"]', style: { 'background-color': '#5eead4', width: 12, height: 12 } },
-  { selector: 'node[type="Entity"]', style: { 'background-color': '#a78bfa', shape: 'diamond', width: 10, height: 10 } },
-  { selector: 'node[type="Answer"]', style: { 'background-color': '#60a5fa', shape: 'hexagon', width: 14, height: 14 } },
+  {
+    selector: 'node[type="Entity"]',
+    style: {
+      'background-color': '#a78bfa', shape: 'diamond', width: 10, height: 10,
+      label: 'data(short)', 'font-size': 8.5, color: '#a78bfa',
+    },
+  },
+  {
+    selector: 'node[type="Answer"]',
+    style: {
+      'background-color': '#60a5fa', shape: 'hexagon', width: 14, height: 14,
+      label: 'data(short)', 'font-size': 8.5, color: '#60a5fa',
+    },
+  },
   {
     selector: 'node[?dead]',
     style: {
       'background-color': '#f87171',
       color: '#f87171',
+      label: 'data(short)',
+      'font-size': 9,
+      'z-index': 10,
       'border-width': 2,
       'border-color': '#7f1d1d',
       'border-style': 'dashed',
@@ -190,7 +228,18 @@ const CY_STYLE = [
   },
   {
     selector: 'node[?used]',
-    style: { 'border-width': 3, 'border-color': '#5eead4', color: '#e7ebf3', 'font-size': 9 },
+    style: {
+      'border-width': 3,
+      'border-color': '#5eead4',
+      color: '#e7ebf3',
+      label: 'data(short)',
+      'font-size': 9,
+      'z-index': 11,
+    },
+  },
+  {
+    selector: 'node.hl',
+    style: { label: 'data(short)', color: '#e7ebf3', 'font-size': 10, 'z-index': 20 },
   },
   {
     selector: 'edge',
@@ -248,7 +297,7 @@ async function renderGraph() {
       container: $('graph'),
       elements,
       style: CY_STYLE,
-      layout: { name: 'cose', animate: false, nodeRepulsion: 9000, idealEdgeLength: 55, padding: 24 },
+      layout: LAYOUT,
       wheelSensitivity: 0.25,
       minZoom: 0.2,
       maxZoom: 3,
@@ -256,10 +305,22 @@ async function renderGraph() {
     cy.on('tap', 'node', (evt) => {
       const d = evt.target.data();
       toast(`${d.type}: ${d.full}${d.detail ? ` — ${d.detail}` : ''}`);
+      if (d.type === 'Claim') selectClaim(d.id);
+    });
+    // Hover reveals the label of a claim that is otherwise unlabelled.
+    cy.on('mouseover', 'node', (e) => {
+      e.target.addClass('hl');
+      e.target.neighborhood('node').addClass('hl');
+      $('graph').style.cursor = 'pointer';
+    });
+    cy.on('mouseout', 'node', (e) => {
+      e.target.removeClass('hl');
+      e.target.neighborhood('node').removeClass('hl');
+      $('graph').style.cursor = 'default';
     });
   } else {
     cy.json({ elements });
-    cy.layout({ name: 'cose', animate: false, nodeRepulsion: 9000, idealEdgeLength: 55, padding: 24 }).run();
+    cy.layout(LAYOUT).run();
   }
   cy.fit(undefined, 28);
 }
